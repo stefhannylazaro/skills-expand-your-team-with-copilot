@@ -846,7 +846,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function shareOnTwitter(activityName, details) {
     const text = `Check out ${activityName} at Mergington High School! ${details.description}`;
     const url = getActivityShareUrl(activityName);
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    const twitterUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
     window.open(twitterUrl, '_blank', 'width=550,height=420');
   }
 
@@ -865,11 +865,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function copyActivityLink(activityName) {
     const url = getActivityShareUrl(activityName);
-    navigator.clipboard.writeText(url).then(() => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        showMessage("Link copied to clipboard!", "success");
+      }).catch(() => {
+        fallbackCopyToClipboard(url);
+      });
+    } else {
+      fallbackCopyToClipboard(url);
+    }
+  }
+
+  function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand("copy");
       showMessage("Link copied to clipboard!", "success");
-    }).catch(() => {
-      showMessage("Failed to copy link", "error");
-    });
+    } catch (err) {
+      showMessage("Please copy the link manually: " + text, "info");
+    }
+    document.body.removeChild(textArea);
   }
 
   // Handle form submission
