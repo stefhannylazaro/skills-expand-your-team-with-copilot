@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Theme toggle elements and logic
   const themeToggle = document.getElementById("theme-toggle");
   const themeIcon = themeToggle.querySelector(".theme-icon");
-  const themeText = themeToggle.querySelector("span:last-child");
+  const themeText = themeToggle.querySelector(".theme-text");
 
   // Check for saved theme preference or default to light mode
   function initializeTheme() {
@@ -10,9 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (savedTheme === "dark") {
       document.body.classList.add("dark-mode");
       updateThemeToggle(true);
-    } else {
-      document.body.classList.remove("dark-mode");
-      updateThemeToggle(false);
     }
   }
 
