@@ -552,6 +552,21 @@ document.addEventListener("DOMContentLoaded", () => {
             .join("")}
         </ul>
       </div>
+      <div class="social-share-buttons">
+        <span class="share-label">Share:</span>
+        <button class="share-button share-twitter" data-activity="${name}" title="Share on X (Twitter)">
+          𝕏
+        </button>
+        <button class="share-button share-facebook" data-activity="${name}" title="Share on Facebook">
+          f
+        </button>
+        <button class="share-button share-email" data-activity="${name}" title="Share via Email">
+          ✉
+        </button>
+        <button class="share-button share-copy" data-activity="${name}" title="Copy link">
+          🔗
+        </button>
+      </div>
       <div class="activity-card-actions">
         ${
           currentUser
@@ -586,6 +601,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handlers for social share buttons
+    const shareTwitterButton = activityCard.querySelector(".share-twitter");
+    const shareFacebookButton = activityCard.querySelector(".share-facebook");
+    const shareEmailButton = activityCard.querySelector(".share-email");
+    const shareCopyButton = activityCard.querySelector(".share-copy");
+
+    shareTwitterButton.addEventListener("click", () => shareOnTwitter(name, details));
+    shareFacebookButton.addEventListener("click", () => shareOnFacebook(name));
+    shareEmailButton.addEventListener("click", () => shareViaEmail(name, details));
+    shareCopyButton.addEventListener("click", () => copyActivityLink(name));
 
     activitiesList.appendChild(activityCard);
   }
@@ -809,6 +835,61 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       messageDiv.classList.add("hidden");
     }, 5000);
+  }
+
+  // Social sharing functions
+  function getActivityShareUrl(activityName) {
+    const baseUrl = window.location.origin;
+    return `${baseUrl}?activity=${encodeURIComponent(activityName)}`;
+  }
+
+  function shareOnTwitter(activityName, details) {
+    const text = `Check out ${activityName} at Mergington High School! ${details.description}`;
+    const url = getActivityShareUrl(activityName);
+    const twitterUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(twitterUrl, '_blank', 'width=550,height=420');
+  }
+
+  function shareOnFacebook(activityName) {
+    const url = getActivityShareUrl(activityName);
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(facebookUrl, '_blank', 'width=550,height=420');
+  }
+
+  function shareViaEmail(activityName, details) {
+    const subject = `Join ${activityName} at Mergington High School!`;
+    const body = `Hi!\n\nI wanted to share this activity with you:\n\n${activityName}\n${details.description}\nSchedule: ${formatSchedule(details)}\n\nLearn more: ${getActivityShareUrl(activityName)}`;
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+  }
+
+  function copyActivityLink(activityName) {
+    const url = getActivityShareUrl(activityName);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        showMessage("Link copied to clipboard!", "success");
+      }).catch(() => {
+        fallbackCopyToClipboard(url);
+      });
+    } else {
+      fallbackCopyToClipboard(url);
+    }
+  }
+
+  function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand("copy");
+      showMessage("Link copied to clipboard!", "success");
+    } catch (err) {
+      showMessage("Please copy the link manually: " + text, "info");
+    }
+    document.body.removeChild(textArea);
   }
 
   // Handle form submission
